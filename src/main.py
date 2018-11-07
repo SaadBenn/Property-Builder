@@ -5,6 +5,7 @@ import itertools
 import matplotlib.pyplot as plt
 # library for statistical high visualization of data
 import seaborn as sns
+import re
 
 sns.set()
 
@@ -19,10 +20,20 @@ headers = ({'User-Agent':
 url = "https://casa.sapo.pt/Venda/Apartmentos/?sa=11&or=10"
 response = get(url, headers=headers)  # type: Response
 
-print(response)
-print(response.text[:1000])
 
 # parsing the info to make it easier to navigate and get the contents
 html_soup = BeautifulSoup(response.text, 'html.parser')  # type: BeautifulSoup
 
 house_containers = html_soup.find_all('div', class_='searchResultProperty')
+first_structure = house_containers[0]
+price = first_structure.find_all('span')[2].text
+price = price.encode('utf-8').replace(' ', '')
+
+# get only digits
+price = re.sub('\D', '', price)
+# using itertools to retrieve and turn the price into int
+price = int(''.join(itertools.takewhile(str.isdigit, price)))
+
+
+for url in first_structure.find_all('a'):
+    print(url.get('href'))
