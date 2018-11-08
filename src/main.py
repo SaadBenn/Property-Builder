@@ -67,6 +67,30 @@ for page in range(0, STOP):
             # build the price database
             prices.append(int(price))
 
+            # Populating zones list
+            location = container.find_all('p', class_='searchPropertyLocation')[0].text
+            location = location[7:location.find(',')]
+            zone.append(location)
+
+            # populating titles list
+            name = container.find_all('span')[0].text
+            titles.append(name)
+
+            # populating status list
+            status = container.find_all('p')[5].text
+            condition.append(status)
+
+            # populate area list
+            m2 = container.find_all('p')[9].text
+            m2 = m2.encode('utf-8').replace(' ', '')
+            if m2 != '-':
+                m2 = re.sub('\D', '', m2)
+                m2 = float(''.join(itertools.takewhile(str.isdigit, m2)))
+                areas.append(m2)
+            else:
+                areas.append(m2)
+
+print(areas)
 # first_structure = house_containers[0]
 # price = first_structure.find_all('span')[2].text
 # price = price.encode('utf-8').replace(' ', '')
