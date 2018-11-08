@@ -33,7 +33,6 @@ descriptions = []
 urls = []
 thumbnails = []
 
-
 # putting the data into a dataframe so that it can
 # be saved as a cvs or excel file
 
