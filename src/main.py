@@ -1,3 +1,4 @@
+from random import randint
 from bs4 import BeautifulSoup
 from requests import get, Response
 import pandas as pd
@@ -6,6 +7,7 @@ import matplotlib.pyplot as plt
 # library for statistical high visualization of data
 import seaborn as sns
 import re
+import time
 
 sns.set()
 
@@ -17,7 +19,7 @@ headers = ({'User-Agent':
                 'Mozilla/5.0 (Windows NT 6.1) AppleWebkit/537.36 (KHTML, '
                 'like Gecko) Chrome/41.0.2228.0 Safari/537.36'})
 
-STOP = 9
+STOP = 90
 n_pages = 0
 
 # Setting up the lists that will form our dataframe with all the results
@@ -33,7 +35,9 @@ thumbnails = []
 
 for page in range(0, STOP):
     n_pages += 1
-    url = 'https://casa.sapo.pt/Venda/Apartmentos/?sa=11&lp=10000&or=10' + '&pn='+str(page)
+
+    # &lp filter grabs only properties with prices higher than 10000
+    url = 'https://casa.sapo.pt/Venda/Apartmentos/?sa=11&lp=10000&or=10' + '&pn=' + str(page)
     response = get(url, headers=headers)  # type: Response
 
     # parsing the info to make it easier to navigate and get the contents
@@ -51,9 +55,9 @@ for page in range(0, STOP):
                 # next element is the price
                 price = container.find_all('span')[3].text
                 if price.find('/') != -1:
-                    price = price[0:price.find['/']-1]
+                    price = price[0:price.find['/'] - 1]
             if price.find('/') != -1:
-                price = price[0:price.find('/')-1]
+                price = price[0:price.find('/') - 1]
 
             # using list comprehension to simplify the code a bit
             # get the price as int
@@ -90,18 +94,27 @@ for page in range(0, STOP):
             else:
                 areas.append(m2)
 
-print(areas)
-# first_structure = house_containers[0]
-# price = first_structure.find_all('span')[2].text
-# price = price.encode('utf-8').replace(' ', '')
+            # creation date of the ad
+            # using panda library
+            date = pd.to_datetime(container.find_all('div', class_='searchPropertyDate')[0].text[21:31])
+            created.append(date)
 
-# # get only digits
-# price = re.sub('\D', '', price)
-# # using itertools to retrieve and turn the price into int
-# price = int(''.join(itertools.takewhile(str.isdigit, price)))
+            # Populating Description list
+            description = container.find_all('p', class_='searchPropertyDescription')[0].text[7:-6]
+            descriptions.append(description)
 
+            # Populating url list
+            link = 'https://casa.sapo.pt/' + container.find_all('a')[0].get('href')[1:-6]
+            urls.append(link)
 
+            # Populating image list
+            img = str(container.find_all('img')[0])
+            img = img[img.find('data-original_2x=') + 18:img.find('id') - 2]
+            thumbnails.append(img)
+    else:
+        print('The container is empty')
 
-#
-# for url in first_structure.find_all('a'):
-#     print(url.get('hr ef'))
+# mimicing an actual browser like behavior
+time.sleep(randint(1, 2))
+
+print('We ran through {} pages containing {} properties.'.format(n_pages, len(titles)))
