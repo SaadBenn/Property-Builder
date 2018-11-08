@@ -33,6 +33,12 @@ descriptions = []
 urls = []
 thumbnails = []
 
+
+# putting the data into a dataframe so that it can
+# be saved as a cvs or excel file
+
+cols = ['Title', 'Zone', 'Price', 'Size (m^2)', 'Status', 'Description', 'Date', 'URL', 'Image']
+
 for page in range(0, STOP):
     n_pages += 1
 
@@ -116,5 +122,20 @@ for page in range(0, STOP):
 
 # mimicing an actual browser like behavior
 time.sleep(randint(1, 2))
+
+dataframe = pd.DataFrame({
+    'Title': titles,
+    'Price': prices,
+    'Size (m^2)': areas,
+    'Zone': zone,
+    'Date': created,
+    'Status': condition,
+    'Description': descriptions,
+    'URL': urls,
+    'Image': thumbnails
+})[cols]
+
+# save the data into an excel file
+dataframe.to_excel('property.xls')
 
 print('We ran through {} pages containing {} properties.'.format(n_pages, len(titles)))
